@@ -18,6 +18,7 @@
 * **Gestión de Estado**: Utilizaremos **Riverpod**.
 * **Plataforma Objetivo**: Android.
 * **SDK Android**: `minSdkVersion` 21 (Android 5.0) para compatibilidad con Firebase/Geolocator. Pruebas en emulador con API 33+.
+* **Application ID**: `ezekim.farmaciasgps` (Identificador único de la aplicación).
 * **Arquitectura**: **Feature-First**.
 
 ## Fases de Desarrollo
@@ -28,9 +29,9 @@
 - [x] **0.3 Configuración de Entorno**: Creación de `.gitignore` y limpieza de archivos auxiliares.
 
 ### Fase 1: Estructura Base y Configuración
-- [ ] Inicialización del proyecto Flutter.
-- [ ] Configuración del archivo `pubspec.yaml` con dependencias base (Riverpod, Dio, flutter_map, etc.).
-- [ ] Creación de la estructura de carpetas (Feature-First).
+- [x] Inicialización del proyecto Flutter.
+- [x] Configuración del archivo `pubspec.yaml` con dependencias base (Riverpod, Dio, flutter_map, etc.).
+- [x] Creación de la estructura de carpetas (Feature-First).
 
 ### Fase 2: Módulo de Autenticación (RU-01) - *Guiado paso a paso*
 - [ ] Creación y configuración guiada de Firebase para Android.
