@@ -1,0 +1,141 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning, fit, calc, babel}
+\geometry{a4paper, margin=2.5cm}
+
+\title{Documentación Técnica y Arquitectónica\\ \large App Móvil: Farmacias de Turno}
+\author{Alumno}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introducción}
+Este documento tiene como objetivo registrar de manera formal y evolutiva todas las decisiones arquitectónicas, diagramas y configuraciones de la aplicación móvil solicitada por el profesor Sebastián Salazar Molina.
+
+La aplicación está desarrollada en \textbf{Flutter} (Dart), orientada principalmente al sistema operativo Android, e implementa integraciones con hardware (GPS), servicios en la nube (Firebase Google Sign-In) y APIs RESTful (para obtención de clima y farmacias de turno).
+
+\section{Acuerdos Arquitectónicos (Fase 0)}
+\subsection{Metodología de Trabajo}
+Para evitar deuda técnica, el desarrollo se lleva a cabo mediante una metodología estrictamente iterativa. Cada componente debe ser diseñado, implementado mediante programación progresiva y finalmente validado mediante revisión de código antes de avanzar a la siguiente etapa.
+
+\subsection{Estandarización de Código}
+Se han definido las siguientes normas de calidad para el código fuente:
+\begin{itemize}
+    \item \textbf{SDK Android:} \texttt{minSdkVersion} 21 (Android 5.0) para asegurar compatibilidad con Firebase y Geolocator.
+    \item \textbf{Gestión de Estado:} Riverpod.
+    \item \textbf{Arquitectura:} Feature-First (Agrupación por funcionalidades).
+    \item \textbf{Nomenclatura:} \texttt{snake\_case} para archivos, \texttt{PascalCase} para Clases/Enums, y \texttt{camelCase} para variables y funciones.
+    \item \textbf{Documentación:} Código 100\% en idioma español con documentación activa para propósitos académicos.
+\end{itemize}
+
+\subsection{Restricciones de Infraestructura y Servicios}
+Para garantizar la viabilidad académica del proyecto y evitar costos imprevistos, se ha establecido la directriz estricta de utilizar exclusivamente servicios en la nube y herramientas \textbf{100\% gratuitas (Cloud Free)}. Está terminantemente prohibido incorporar dependencias o APIs que requieran el ingreso de tarjetas de crédito o configuración de facturación. Un ejemplo de la aplicación de esta regla es el uso de OpenStreetMap en lugar del servicio comercial de Google Maps API.
+
+\section{Diseño del Sistema}
+
+\subsection{Diagrama de Contexto (Nivel 1)}
+El diagrama de contexto ilustra cómo el usuario interactúa con la aplicación móvil y los sistemas externos necesarios.
+
+\vspace{1cm}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=2.5cm and 2cm,
+    box/.style={rectangle, draw=black, thick, fill=blue!10, text width=3cm, align=center, rounded corners, minimum height=1.5cm},
+    user/.style={circle, draw=black, thick, fill=green!10, text width=2cm, align=center, minimum height=2cm},
+    ext/.style={rectangle, draw=black, thick, fill=gray!20, text width=3cm, align=center, rounded corners, minimum height=1.5cm},
+    arrow/.style={->, thick, >=stealth}
+]
+
+% Nodos
+\node[user] (usuario) {Usuario};
+\node[box, right=of usuario] (app) {App Flutter\\ (Android)};
+    \node[ext, above right=of app] (firebase) {Firebase\\ Auth};
+    \node[ext, right=of app] (maps) {OpenStreet\\ Map API};
+    \node[ext, below right=of app] (api) {API REST\\ (Profesor)};
+
+% Flechas
+\draw[arrow] (usuario) -- node[anchor=south, font=\scriptsize] {Usa la app} (app);
+\draw[arrow] (app) |- node[anchor=east, font=\scriptsize] {Autenticación} (firebase);
+\draw[arrow] (app) -- node[anchor=south, font=\scriptsize] {Ubicación / Mapa} (maps);
+\draw[arrow] (app) |- node[anchor=east, font=\scriptsize] {Clima / Farmacias} (api);
+
+\end{tikzpicture}
+\caption{Diagrama de Contexto de la Aplicación.}
+\end{figure}
+
+\subsection{Diagrama de Contenedores (Nivel 2)}
+El diagrama de contenedores detalla la estructura interna de la aplicación Flutter (separación entre UI, Riverpod y Servicios).
+
+\vspace{1cm}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=2cm and 2cm,
+    layer/.style={rectangle, draw=blue, thick, fill=blue!5, text width=5cm, align=center, minimum height=1.5cm},
+    ext/.style={rectangle, draw=black, thick, fill=gray!20, text width=3cm, align=center, rounded corners, minimum height=1cm},
+    arrow/.style={->, thick, >=stealth}
+]
+
+% Nodos Internos
+\node[layer] (ui) {\textbf{Capa de Presentación}\\ (Pantallas y Widgets)};
+\node[layer, below=of ui] (estado) {\textbf{Gestión de Estado}\\ (Riverpod)};
+\node[layer, below=of estado] (servicios) {\textbf{Servicios y Repositorios}\\ (Dio, GPS)};
+
+% Bounding box para la App
+\node[draw, dashed, thick, fit=(ui) (estado) (servicios), inner sep=0.5cm, label=above:\textbf{App Flutter}] (app_box) {};
+
+% Nodos Externos
+\node[ext, right=of servicios] (apis) {Sistemas Externos\\ (APIs, Firebase)};
+\node[circle, draw=black, thick, fill=green!10, text width=1.5cm, align=center, left=of ui] (user) {Usuario};
+
+% Flechas
+\draw[arrow] (user) -- node[anchor=south, font=\scriptsize] {Interactúa} (ui);
+\draw[arrow] (ui) -- node[anchor=east, font=\scriptsize] {Eventos / Lee estado} (estado);
+\draw[arrow] (estado) -- node[anchor=east, font=\scriptsize] {Ejecuta peticiones} (servicios);
+\draw[arrow] (servicios) -- node[anchor=south, font=\scriptsize] {JSON / SDK} (apis);
+
+\end{tikzpicture}
+\caption{Diagrama de Contenedores Internos.}
+\end{figure}
+
+\subsubsection*{Explicación del Flujo de Datos}
+Para comprender mejor la arquitectura de software planteada, es fundamental entender el rol de cada capa y cómo fluye la información desde el usuario hasta los servidores externos:
+
+\begin{enumerate}
+    \item \textbf{Capa de Presentación (UI/UX):} Es la interfaz visual pura (botones, mapas, textos). Esta capa es "tonta", es decir, no contiene lógica de negocio ni hace peticiones a internet. Solo captura las acciones del usuario (ej. presionar "Buscar Farmacias") y muestra los datos que le entrega la capa inferior.
+    
+    \item \textbf{Gestión de Estado (Riverpod):} Funciona como el "cerebro" o puente intermedio. Cuando el usuario hace una acción en la UI, la Gestión de Estado se entera y decide qué hacer. Su trabajo principal es solicitar datos a los Servicios, mantener esos datos almacenados temporalmente en la memoria del teléfono, y avisarle a la UI de forma reactiva para que se actualice o redibuje cuando los datos cambien.
+    
+    \item \textbf{Servicios y Repositorios:} Son los "obreros". Tienen el código específico para comunicarse con el mundo exterior. Utilizan herramientas como \texttt{Dio} para hacer peticiones HTTP a las APIs, o paquetes como \texttt{Geolocator} para obtener coordenadas del chip GPS. 
+    
+    \item \textbf{Sistemas Externos:} Son los proveedores finales de la información que consume la capa de Servicios. Incluyen:
+    \begin{itemize}
+        \item \textbf{Firebase Auth:} Mantiene la persistencia de sesión segura usando las cuentas de Google del usuario.
+        \item \textbf{OpenStreetMap API:} Brinda la cartografía de uso libre y gratuito para dibujar los mapas, evitando los costos de facturación de Google Maps.
+        \item \textbf{API del Profesor:} Servidor RESTful que retorna la información climática y la lista de farmacias de turno en bruto (formato JSON).
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Ejemplo de un Flujo Completo (paso a paso):}
+\begin{enumerate}
+    \item El usuario abre la app y pulsa el botón "Ver farmacias cercanas" en la \textbf{UI}.
+    \item Ese botón no hace la búsqueda directa, sino que le avisa a \textbf{Riverpod} (Gestión de Estado) que se necesitan los datos.
+    \item Riverpod llama al \textbf{Servicio} de Farmacias y al Servicio de GPS.
+    \item Los Servicios hacen el "trabajo pesado": Encienden el GPS del teléfono y hacen la petición HTTP a la \textbf{API del profesor}.
+    \item La API responde con un texto en formato JSON. El Servicio toma ese texto, lo "traduce" y lo convierte en una lista de objetos \texttt{Farmacia} que Dart entiende, devolviéndosela a Riverpod.
+    \item Riverpod guarda esa lista de farmacias en su memoria interna.
+    \item Automáticamente (y de forma reactiva), la \textbf{UI} detecta que Riverpod tiene nuevos datos, por lo que se "redibuja" a sí misma mostrando finalmente los pines en el mapa para el usuario.
+\end{enumerate}
+
+\end{document}

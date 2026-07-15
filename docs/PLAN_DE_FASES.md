@@ -1,0 +1,58 @@
+# Plan de Desarrollo: App de Farmacias de Turno
+
+> **Nota:** Aunque los diagramas y el diseño formal están en `documentacion.tex`, mantenemos aquí el registro rápido de nuestras decisiones de código (convenciones, tecnologías, etc.) para tenerlas siempre a mano durante el desarrollo sin tener que abrir el archivo de LaTeX.
+
+## Acuerdos de Código y Estandarización (Aprobados)
+1. **Idioma Global**: Todo el código fuente (nombres de variables, clases, archivos, funciones), la interfaz de usuario y los comentarios se escribirán en **Español** para facilitar tu comprensión y aprendizaje.
+2. **Nombres de Archivos y Carpetas**: Siempre en minúsculas y separados por guiones bajos (`snake_case`). 
+   * *Ejemplo*: `pantalla_inicio.dart`, `proveedor_autenticacion.dart`.
+3. **Nombres de Clases y Nombres de Enums**: Siempre la primera letra de cada palabra en mayúscula (`PascalCase`). 
+   * *Ejemplo*: `class PerfilUsuario`, `enum TipoDeClima`.
+4. **Variables, Funciones y Valores de Enums**: Siempre en `camelCase` (estándar oficial de Dart para no levantar advertencias).
+   * *Ejemplo Variables/Funciones*: `String nombreUsuario;`, `void obtenerFarmacias()`.
+   * *Ejemplo Valores de Enum*: `soleado`, `nublado` (dentro del enum `TipoDeClima`).
+5. **Widgets**: Por rendimiento, siempre extraeremos fragmentos de interfaz a clases `StatelessWidget` en archivos separados dentro de la carpeta `/widgets`, evitando usar métodos que devuelvan widgets.
+6. **Restricción Cloud Free**: Prohibido usar APIs de pago. Usaremos OpenStreetMap de forma exclusiva.
+
+## Decisiones Tecnológicas
+* **Gestión de Estado**: Utilizaremos **Riverpod**.
+* **Plataforma Objetivo**: Android.
+* **SDK Android**: `minSdkVersion` 21 (Android 5.0) para compatibilidad con Firebase/Geolocator. Pruebas en emulador con API 33+.
+* **Arquitectura**: **Feature-First**.
+
+## Fases de Desarrollo
+
+### Fase 0: Acuerdos y Diagramas
+- [x] **0.1 Estilo de Código**: Confirmación de las reglas de estandarización y guardado de arquitectura.
+- [x] **0.2 Arquitectura Visual**: Creación de diagramas C4 en LaTeX y configuración del flujo de datos.
+- [x] **0.3 Configuración de Entorno**: Creación de `.gitignore` y limpieza de archivos auxiliares.
+
+### Fase 1: Estructura Base y Configuración
+- [ ] Inicialización del proyecto Flutter.
+- [ ] Configuración del archivo `pubspec.yaml` con dependencias base (Riverpod, Dio, flutter_map, etc.).
+- [ ] Creación de la estructura de carpetas (Feature-First).
+
+### Fase 2: Módulo de Autenticación (RU-01) - *Guiado paso a paso*
+- [ ] Creación y configuración guiada de Firebase para Android.
+- [ ] Implementación de la pantalla de Login y botón de Google.
+- [ ] Lógica de Riverpod para manejar y guardar la sesión iniciada.
+
+### Fase 3: Módulo de Geolocalización y Mapas (RU-02) - *Guiado paso a paso*
+- [ ] Flujo de solicitud de permisos de ubicación en Android.
+- [ ] Servicio para obtener las coordenadas del dispositivo.
+- [ ] Configuración de la API de OpenStreetMap (`flutter_map`) e incrustación del mapa.
+
+### Fase 4: Consumo de Datos (Farmacias y Clima) (RU-03)
+- [ ] Pruebas a la API del profesor y creación de modelos (Models).
+- [ ] Implementación de los servicios HTTP con `dio`.
+- [ ] Conectar la respuesta de la API con los marcadores del mapa libre y la UI del clima.
+
+### Fase 5: UI/UX, Refactorización y Entregables
+- [ ] Aplicar diseño moderno y estético.
+- [ ] Elaboración del archivo `README.md` técnico (pasos de instalación y dependencias) según la rúbrica.
+
+## Plan de Verificación (QA)
+- [x] **Fase 0**: Revisión y aprobación de los diagramas C4 y el compilado de LaTeX.
+- [ ] **Autenticación**: Probar en emulador Android que la sesión se guarde tras reiniciar la app.
+- [ ] **GPS**: Validar que el emulador solicite permisos y lea ubicaciones simuladas.
+- [ ] **API**: Validar que el panel muestre el clima correcto y las farmacias generen marcadores en el mapa interactivo.
