@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../modelos/usuario_modelo.dart';
@@ -42,7 +43,7 @@ class ServicioAuth {
       return null;
     } catch (e) {
       // En una app de producción esto iría a un servicio de Logs (Crashlytics)
-      print('=== ERROR EN GOOGLE SIGN-IN ===\n$e');
+      debugPrint('=== ERROR EN GOOGLE SIGN-IN ===\n$e');
       return null;
     }
   }

@@ -35,9 +35,9 @@
 - [x] Creación de la estructura de carpetas (Feature-First).
 
 ### Fase 2: Módulo de Autenticación (RU-01) - *Guiado paso a paso*
-- [ ] Creación y configuración guiada de Firebase para Android.
-- [ ] Implementación de la pantalla de Login y botón de Google.
-- [ ] Lógica de Riverpod para manejar y guardar la sesión iniciada.
+- [x] Creación y configuración guiada de Firebase para Android.
+- [x] Implementación de la pantalla de Login y botón de Google.
+- [x] Lógica de Riverpod para manejar y guardar la sesión iniciada.
 
 ### Fase 3: Módulo de Geolocalización y Mapas (RU-02) - *Guiado paso a paso*
 - [ ] Flujo de solicitud de permisos de ubicación en Android.
@@ -55,6 +55,6 @@
 
 ## Plan de Verificación (QA)
 - [x] **Fase 0**: Revisión y aprobación de los diagramas C4 y el compilado de LaTeX.
-- [ ] **Autenticación**: Probar en emulador Android que la sesión se guarde tras reiniciar la app.
+- [x] **Autenticación**: Probar en emulador Android que la sesión se guarde tras reiniciar la app.
 - [ ] **GPS**: Validar que el emulador solicite permisos y lea ubicaciones simuladas.
 - [ ] **API**: Validar que el panel muestre el clima correcto y las farmacias generen marcadores en el mapa interactivo.
