@@ -184,7 +184,7 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
                   initialCenter: ubicacionUsuario,
                   initialZoom: 14.0,
                   // Si el usuario toca el mapa vacío, cerramos la tarjeta
-                  onTap: (_, __) {
+                  onTap: (_, _) {
                     ref.read(farmaciaSeleccionadaProvider.notifier).limpiar();
                   },
                 ),
