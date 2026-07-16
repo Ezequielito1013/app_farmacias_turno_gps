@@ -67,6 +67,16 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
     final minsalEstado = ref.watch(farmaciasMinsalProvider);
     final utemEstado = ref.watch(farmaciaCercanaUtemProvider);
 
+    // Auto-centrado al encontrar la farmacia exitosamente
+    ref.listen(farmaciaCercanaUtemProvider, (previous, next) {
+      if (previous?.isLoading == true && next.hasValue && next.value != null) {
+        // Esperamos un instante pequeño para que Flutter renderice el nuevo marcador primero
+        Future.delayed(const Duration(milliseconds: 200), () {
+          if (mounted) _centrarFarmaciaDestacada();
+        });
+      }
+    });
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -99,6 +109,7 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
               point: ubicacionUsuario,
               width: 50,
               height: 50,
+              rotate: true, // Sigue la rotación del usuario
               child: const Icon(Icons.person_pin_circle, color: Colors.blueAccent, size: 40),
             ),
           );
@@ -122,6 +133,7 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
                   point: latLngMinsal,
                   width: 30,
                   height: 30,
+                  rotate: true, // Sigue la rotación del usuario
                   child: const Icon(Icons.local_pharmacy, color: Colors.green, size: 24),
                 ),
               );
@@ -135,6 +147,7 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
                 point: LatLng(farmaciaUtem.latitud, farmaciaUtem.longitud),
                 width: 80, // Tamaño grande para dar espacio a la animación del radar
                 height: 80,
+                rotate: true, // Sigue la rotación del usuario
                 child: const MarcadorDestacado(),
               ),
             );
@@ -155,6 +168,8 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
                   TileLayer(
                     urlTemplate: 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
                     userAgentPackageName: 'com.ezekim.farmaciasgps',
+                    panBuffer: 2, // Precarga agresiva alrededor de la vista actual
+                    keepBuffer: 3, // Mantiene en memoria las celdas recientes
                   ),
                   MarkerLayer(markers: marcadores),
                 ],
