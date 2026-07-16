@@ -12,7 +12,8 @@
    * *Ejemplo Variables/Funciones*: `String nombreUsuario;`, `void obtenerFarmacias()`.
    * *Ejemplo Valores de Enum*: `soleado`, `nublado` (dentro del enum `TipoDeClima`).
 5. **Widgets**: Por rendimiento, siempre extraeremos fragmentos de interfaz a clases `StatelessWidget` en archivos separados dentro de la carpeta `/widgets`, evitando usar métodos que devuelvan widgets.
-6. **Restricción Cloud Free**: Prohibido usar APIs de pago. Usaremos OpenStreetMap de forma exclusiva.
+6. **Principios SOLID**: Aplicación estricta de Responsabilidad Única (SRP). Evitaremos "God Functions" en favor de funciones y clases pequeñas y orquestadas.
+7. **Restricción Cloud Free**: Prohibido usar APIs de pago. Usaremos OpenStreetMap de forma exclusiva.
 
 ## Decisiones Tecnológicas
 * **Gestión de Estado**: Utilizaremos **Riverpod**.
