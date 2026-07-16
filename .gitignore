@@ -13,8 +13,9 @@
 *.synctex.gz
 *.toc
 
-# Configuraciones locales del Agente IA
+# Configuraciones y Archivos Temporales del Agente IA
 .agents/
+docs/specs/
 
 # --- FLUTTER Y DART ---
 # Miscellaneous
