@@ -53,14 +53,17 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
   }
 
   void _buscarFarmacia() {
+    // 1. Usamos SIEMPRE la ubicación real del GPS del usuario.
     final ubicacion = ref.read(ubicacionUsuarioProvider).value;
+    
     if (ubicacion != null) {
+      // 2. Actualizamos el proveedor con las coordenadas a buscar.
       ref.read(ubicacionBusquedaFarmaciaProvider.notifier)
          .actualizar(LatLng(ubicacion.latitude, ubicacion.longitude));
       
-      // La cámara se centrará automáticamente cuando el provider emita el nuevo estado
-      // gracias a que reconstruirá el mapa con un initialCenter distinto, 
-      // o bien el usuario apretará el FAB de centrar farmacia.
+      // 3. Forzar siempre una nueva petición HTTP a la API del profesor,
+      // obligando a Riverpod a descartar la caché por si abrieron nuevas farmacias.
+      ref.invalidate(farmaciaCercanaUtemProvider);
     }
   }
 

@@ -30,6 +30,7 @@ void main() {
     test('fromJsonUtem mapea correctamente un payload de UTEM', () {
       final json = {
         "apertura_normal": "00:00:00",
+        "cadena": "Guti",
         "cierre_normal": "00:00:00",
         "direccion": "CERRO NAVIA",
         "latitude": -33.417333,
@@ -40,7 +41,7 @@ void main() {
 
       final farmacia = ModeloFarmacia.fromJsonUtem(json);
 
-      expect(farmacia.nombre, 'SALVADOR GUTIERREZ');
+      expect(farmacia.nombre, 'Guti - SALVADOR GUTIERREZ');
       expect(farmacia.direccion, 'CERRO NAVIA');
       expect(farmacia.latitud, -33.417333);
       expect(farmacia.longitud, -70.747545);

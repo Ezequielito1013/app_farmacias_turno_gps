@@ -22,8 +22,12 @@ class ModeloFarmacia {
 
   /// Factory para parsear el JSON que devuelve la API de la UTEM (Swagger)
   factory ModeloFarmacia.fromJsonUtem(Map<String, dynamic> json) {
+    final cadena = json['cadena']?.toString().trim() ?? '';
+    final nombreBase = json['nombre']?.toString().trim() ?? 'Farmacia Desconocida';
+    final nombreCombinado = cadena.isNotEmpty ? '$cadena - $nombreBase' : nombreBase;
+
     return ModeloFarmacia(
-      nombre: json['nombre'] ?? 'Farmacia Desconocida',
+      nombre: nombreCombinado,
       direccion: json['direccion'] ?? 'Sin dirección',
       latitud: (json['latitude'] ?? 0).toDouble(),
       longitud: (json['longitude'] ?? 0).toDouble(),

@@ -11,6 +11,19 @@ Aplicación móvil multiplataforma desarrollada en Flutter para la asignatura de
 
 ---
 
+## 📖 Guía de Uso Rápido
+
+La aplicación está diseñada para requerir la menor cantidad de interacciones posibles por parte del usuario:
+
+1. **Inicio de Sesión:** Al abrir la app, ingresa con tu cuenta de Google.
+2. **Auto-Búsqueda:** Una vez concedidos los permisos de ubicación, la app detectará tu posición actual y consultará automáticamente la API para encontrar la farmacia de turno más cercana.
+3. **Explorar el Mapa:** Verás pines verdes correspondientes a todas las farmacias que están de turno a nivel nacional y un pin especial parpadeante indicando la farmacia de turno más cercana a ti. Al tocar cualquier pin verde, se desplegará una tarjeta flotante con la información detallada (nombre, dirección, horario y teléfono).
+4. **Botón Flotante Rojo (Búsqueda Manual):** Ubicado en la esquina inferior derecha. Si sospechas que el estado de los turnos cambió o deseas forzar a la app a que vuelva a consultar tu farmacia más cercana desde cero, presiona este botón para limpiar la caché y lanzar una nueva petición a la API.
+5. **Botón Flotante Blanco (Centrar):** Te devuelve inmediatamente a tu ubicación GPS actual en el mapa.
+6. **Navegación Externa:** Dentro de la tarjeta flotante de la farmacia, encontrarás botones para copiar la dirección al portapapeles o abrir la ruta en **Google Maps** / **Waze**.
+
+---
+
 ## 🏛️ Arquitectura del Sistema
 
 El proyecto está diseñado bajo los principios de **Clean Architecture**, aplicando una separación estricta mediante el patrón **Feature-First** (agrupación por funcionalidades como `auth`, `mapa`, `farmacias`). 

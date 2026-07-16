@@ -102,8 +102,9 @@ final farmaciaCercanaUtemProvider = FutureProvider<ModeloFarmacia?>((ref) async 
     // Sin slash inicial para evitar https://api.../v1//farmacias
     logger.i('Consultando farmacia más cercana a la UTEM para ($lat, $lng)...');
     final response = await dio.get('farmacias/$lat/$lng');
-    logger.i('UTEM respondió con farmacia: ${response.data['nombre']}');
-    return ModeloFarmacia.fromJsonUtem(response.data);
+    final farmaciaMapeada = ModeloFarmacia.fromJsonUtem(response.data);
+    logger.i('UTEM respondió con farmacia: ${farmaciaMapeada.nombre}');
+    return farmaciaMapeada;
   } catch (e) {
     logger.e('Error crítico consultando UTEM', error: e);
     throw Exception('Error al contactar con la API de UTEM: $e');

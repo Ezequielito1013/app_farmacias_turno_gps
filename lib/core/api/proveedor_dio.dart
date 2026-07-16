@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/logger.dart';
+import '../../features/auth/proveedores/proveedor_auth.dart';
 
 /// Proveedor global del cliente HTTP Dio.
 /// Está configurado con la URL base de la UTEM y un interceptor que
@@ -40,10 +41,15 @@ final dioProvider = Provider<Dio>((ref) {
       return handler.next(options);
     },
     onError: (DioException e, handler) {
-      // Si la API falla, pasamos el error para manejarlo en los proveedores específicos
-      logger.e('DioError en [${e.requestOptions.method}] ${e.requestOptions.uri}: ${e.message}');
-      if (e.response != null) {
-        logger.e('Respuesta del Servidor: ${e.response?.data}');
+      // Manejo profesional de expiración de token
+      if (e.response?.statusCode == 401) {
+        logger.w('Token expirado o inválido (401). Cerrando sesión automáticamente...');
+        ref.read(servicioAuthProvider).cerrarSesion();
+      } else {
+        logger.e('DioError en [${e.requestOptions.method}] ${e.requestOptions.uri}: ${e.message}');
+        if (e.response != null) {
+          logger.e('Respuesta del Servidor: ${e.response?.data}');
+        }
       }
       return handler.next(e);
     },
