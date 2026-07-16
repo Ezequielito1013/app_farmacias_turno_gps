@@ -45,55 +45,19 @@ class BotonesMapa extends StatelessWidget {
           
           const SizedBox(height: 16),
           
-          // 2. Botón FAB: Centrar en Farmacia (Aparece solo si hay una buscada)
-          if (tieneFarmaciaDestacada) ...[
-            FloatingActionButton(
-              heroTag: 'btn_farmacia',
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.redAccent,
-              elevation: 6,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              onPressed: onCentrarFarmacia,
-              child: const Icon(Icons.local_pharmacy),
+          // 2. Botón FAB: Buscar o Centrar en Farmacia de Turno
+          FloatingActionButton(
+            heroTag: 'btn_farmacia',
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.redAccent,
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            const SizedBox(height: 16),
-          ],
-
-          // 3. Botón Principal Inferior: Buscar la más cercana
-          SizedBox(
-            width: double.infinity,
-            height: 60, // Ligeramente más grande para que se sienta táctil y premium
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
-                elevation: 8,
-                shadowColor: Colors.blueAccent.withValues(alpha: 0.5), // Brillo sutil
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              onPressed: isLoadingBuscando ? null : onBuscarFarmacia,
-              child: isLoadingBuscando
-                  ? const SizedBox(
-                      width: 28,
-                      height: 28,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 3,
-                      ),
-                    )
-                  : const Text(
-                      'Encontrar Farmacia Más Cercana',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.5,
-                        color: Colors.white,
-                      ),
-                    ),
-            ),
+            onPressed: isLoadingBuscando ? null : onCentrarFarmacia,
+            child: isLoadingBuscando 
+              ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.redAccent, strokeWidth: 2))
+              : const Icon(Icons.local_pharmacy),
           ),
         ],
       ),

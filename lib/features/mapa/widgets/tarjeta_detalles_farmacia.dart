@@ -39,7 +39,7 @@ class TarjetaDetallesFarmacia extends ConsumerWidget {
 
     // Utilizamos Positioned para anclarnos directamente al Stack del Dashboard
     return Positioned(
-      bottom: 100, // Flota por encima de la botonera inferior
+      bottom: 95, // Flota justo por encima de la botonera inferior
       left: 24,
       right: 24,
       child: ClipRRect(

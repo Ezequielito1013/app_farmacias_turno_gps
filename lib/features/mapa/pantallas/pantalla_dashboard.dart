@@ -24,6 +24,7 @@ class PantallaDashboard extends ConsumerStatefulWidget {
 class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with TickerProviderStateMixin {
   final MapController _mapController = MapController();
   static const double _distanciaDeduplicacion = 20.0; // Distancia en metros para considerar duplicado
+  bool _busquedaInicialRealizada = false;
 
   void _centrarUsuario() {
     final ubicacion = ref.read(ubicacionUsuarioProvider).value;
@@ -101,6 +102,15 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
           if (posicion == null) return _buildErrorState('Ubicación desconocida.');
           
           final ubicacionUsuario = LatLng(posicion.latitude, posicion.longitude);
+          
+          // Disparamos la búsqueda automática la primera vez que tenemos GPS
+          if (!_busquedaInicialRealizada) {
+            _busquedaInicialRealizada = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) _buscarFarmacia();
+            });
+          }
+
           final farmaciaUtem = utemEstado.value;
           final List<Marker> marcadores = [];
           const distanciaHelper = Distance();
@@ -199,10 +209,7 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
                 ),
               ),
 
-              // 3. Tarjeta Flotante (Se muestra al seleccionar farmacia)
-              const TarjetaDetallesFarmacia(),
-
-              // 4. Botonera Flotante (Abajo)
+              // 3. Botonera Flotante (Abajo)
               Positioned(
                 bottom: 24,
                 left: 0,
@@ -215,6 +222,9 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
                   tieneFarmaciaDestacada: farmaciaUtem != null,
                 ),
               ),
+
+              // 4. Tarjeta Flotante (Se dibuja al final para que sobreponga a los botones)
+              const TarjetaDetallesFarmacia(),
             ],
           );
         },
