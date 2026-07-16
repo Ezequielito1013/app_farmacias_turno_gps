@@ -1,6 +1,18 @@
 # Farmacias de Turno GPS 🏥🗺️
 
+### 👉 [¡Descargar la Aplicación (APK) Aquí!](https://github.com/Ezequielito1013/app_farmacias_turno_gps/releases/latest) 👈
+
 Aplicación móvil multiplataforma desarrollada en Flutter para la asignatura de Computación Móvil. Su objetivo es ayudar al usuario a encontrar la farmacia de turno más cercana a su ubicación actual, considerando además las condiciones climáticas locales.
+
+### 📸 Vistazo a la Aplicación
+<table align="center" style="border:none;">
+  <tr>
+    <td style="border:none;"><img src="https://github.com/user-attachments/assets/19261d42-397e-4324-b556-8a01c3f2e7b2" width="280" alt="Pantalla Login" /></td>
+    <td style="border:none;"><img src="https://github.com/user-attachments/assets/27bf9ecd-4542-43e8-be30-1d3aaa179ee8" width="280" alt="Pantalla Mapa" /></td>
+    <td style="border:none;"><img src="https://github.com/user-attachments/assets/6dc0065a-702c-411c-a03e-c9a612e49a13" width="280" alt="Pantalla Detalles" /></td>
+  </tr>
+</table>
+
 
 ## 🚀 Características Principales
 - **Autenticación Segura:** Acceso exclusivo mediante Google Sign-In (Firebase Auth) con persistencia de sesión.
