@@ -191,7 +191,7 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
                 children: [
                   TileLayer(
                     urlTemplate: 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'com.ezekim.farmaciasgps',
+                    userAgentPackageName: 'ezekim.farmaciasgps',
                     panBuffer: 2, // Precarga agresiva alrededor de la vista actual
                     keepBuffer: 3, // Mantiene en memoria las celdas recientes
                   ),
