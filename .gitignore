@@ -16,6 +16,7 @@
 # Configuraciones y Archivos Temporales del Agente IA
 .agents/
 docs/specs/
+tasks/
 
 # --- FLUTTER Y DART ---
 # Miscellaneous

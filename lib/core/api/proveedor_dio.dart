@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../utils/logger.dart';
 
 /// Proveedor global del cliente HTTP Dio.
 /// Está configurado con la URL base de la UTEM y un interceptor que
@@ -29,10 +30,10 @@ final dioProvider = Provider<Dio>((ref) {
           // Lo inyectamos en la cabecera "Authorization"
           options.headers['Authorization'] = 'Bearer ${auth.idToken}';
         } else {
-          print('Dio Interceptor: ¡Token JWT de Google es nulo!');
+          logger.w('Dio Interceptor: ¡Token JWT de Google es nulo!');
         }
       } else {
-        print('Dio Interceptor: ¡No hay usuario autenticado en Google!');
+        logger.w('Dio Interceptor: ¡No hay usuario autenticado en Google!');
       }
       
       // Continuamos el viaje de la petición HTTP hacia el servidor
@@ -40,9 +41,9 @@ final dioProvider = Provider<Dio>((ref) {
     },
     onError: (DioException e, handler) {
       // Si la API falla, pasamos el error para manejarlo en los proveedores específicos
-      print('DioError en [${e.requestOptions.method}] ${e.requestOptions.uri}: ${e.message}');
+      logger.e('DioError en [${e.requestOptions.method}] ${e.requestOptions.uri}: ${e.message}');
       if (e.response != null) {
-        print('Respuesta del Servidor: ${e.response?.data}');
+        logger.e('Respuesta del Servidor: ${e.response?.data}');
       }
       return handler.next(e);
     },

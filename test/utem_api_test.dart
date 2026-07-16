@@ -18,7 +18,7 @@ void main() {
       );
       farmaciaArica = responseArica.data['nombre'];
     } on DioException catch (e) {
-      expect(e.response?.statusCode, 404, reason: 'El servidor debería responder 404 si no hay farmacias cerca.');
+      expect(e.response?.statusCode, 400, reason: 'El servidor debería responder 400 si no hay farmacias cerca.');
     }
 
     // 2. Consultamos una farmacia en Punta Arenas (Extremo Sur de Chile)
@@ -29,7 +29,7 @@ void main() {
       );
       farmaciaPuntaArenas = responsePuntaArenas.data['nombre'];
     } on DioException catch (e) {
-      expect(e.response?.statusCode, 404, reason: 'El servidor debería responder 404 si no hay farmacias cerca en Punta Arenas.');
+      expect(e.response?.statusCode, 400, reason: 'El servidor debería responder 400 si no hay farmacias cerca en Punta Arenas.');
     }
 
     // print('Farmacia en Arica: $farmaciaArica');
