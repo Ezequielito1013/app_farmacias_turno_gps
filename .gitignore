@@ -54,3 +54,6 @@ docs/specs/
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
 android/app/google-services.json
+
+# Dev tools and scratch scripts
+dev_tools/

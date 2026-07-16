@@ -139,4 +139,74 @@ Para comprender mejor la arquitectura de software planteada, es fundamental ente
     \item Automáticamente (y de forma reactiva), la \textbf{UI} detecta que Riverpod tiene nuevos datos, por lo que se "redibuja" a sí misma mostrando finalmente los pines en el mapa para el usuario.
 \end{enumerate}
 
+
+\section{Estrategias de Optimización y Rendimiento (Fase 4.1)}
+
+Para la integración de los datos en tiempo real, se tomó la decisión arquitectónica de consumir de forma paralela dos fuentes de datos distintas: La API oficial del MINSAL (Farmacias de Turno a nivel nacional) y la API académica de la UTEM (Clima y Farmacia más cercana).
+
+\subsection{Problema de Rendimiento (Renderizado Masivo)}
+La API del MINSAL retorna la totalidad de las farmacias de turno del país (aproximadamente 2047 registros) en una única petición HTTP. Durante la fase de desarrollo, intentar renderizar los 2047 marcadores simultáneamente en \texttt{flutter\_map} causaba una caída drástica en los cuadros por segundo (FPS) y provocaba bloqueos (hangs) en el hilo principal de la aplicación móvil.
+
+\subsection{Solución Arquitectónica (Filtro Síncrono en RAM)}
+Para mantener la máxima fluidez sin sacrificar la funcionalidad, se diseñó la siguiente estrategia mediante la gestión de estado de Riverpod:
+
+\begin{enumerate}
+    \item \textbf{Descarga en Segundo Plano (Provider 1):} Al iniciar la aplicación, un proveedor aislado realiza la petición HTTP de 900KB al MINSAL. Esta operación se realiza una sola vez por ciclo de vida de la app y la lista de 2047 farmacias se aloja directamente en la memoria RAM.
+    \item \textbf{Filtro de Proximidad (Provider 2):} Un segundo proveedor reactivo escucha simultáneamente la lista en RAM y el flujo de eventos del GPS del dispositivo. Utilizando la librería \texttt{latlong2}, calcula la distancia geodésica (Haversine) entre el usuario y cada una de las 2047 farmacias.
+    \item \textbf{Renderizado Limitado:} El filtro descarta todas las farmacias que superen un radio de 5 kilómetros. Como resultado, la interfaz de usuario (UI) recibe de forma instantánea una lista reducida de 10 a 30 farmacias, garantizando que el mapa se renderice sin problemas de rendimiento.
+\end{enumerate}
+
+\subsection{Estrategia de Caché y Persistencia (Trabajo Futuro)}
+Dado que los turnos de las farmacias cambian diariamente (a las 08:00 AM o medianoche), la lista debe recargarse. Actualmente, si el usuario cierra y vuelve a abrir la aplicación 10 veces en un día, se realizarán 10 peticiones HTTP. Aunque el peso de 900KB no impacta significativamente en redes modernas, las buenas prácticas dictan evitar peticiones redundantes.
+
+En una futura fase (Persistencia Local), se contempla la posibilidad de guardar esta lista en una base de datos local (como SQLite o SharedPreferences) y asignarle un Tiempo de Vida (TTL). La aplicación verificaría la hora local, y solo realizaría una nueva descarga si la caché tiene más de 24 horas de antigüedad o si se ha cruzado la hora de cambio de turno oficial.
+
+\section{Estructura de Datos y Modelos (Payloads)}
+Para optimizar el uso de memoria RAM, la aplicación no almacena todos los campos proporcionados por las APIs, sino que aplica un mapeo selectivo extrayendo únicamente los campos necesarios para renderizar el mapa y filtrar los horarios.
+
+\subsection{API del MINSAL (Farmacias de Turno Nacional)}
+El endpoint \texttt{/getLocalesTurnos.php} devuelve una lista de objetos JSON exclusivamente con las farmacias que están operativas en turno de emergencia o 24 horas. La cantidad de registros devueltos es dinámica y depende enteramente del momento del día en que se consulte (por ejemplo, en la madrugada la cantidad se reduce drásticamente respecto al día). Originalmente se utilizó erróneamente el endpoint \texttt{getLocales.php}, el cual retornaba todo el directorio nacional sin discriminar turnos.
+\begin{verbatim}
+{
+  "fecha": "16-07-26",
+  "local_id": "3",
+  "local_nombre": "CRUZ VERDE",
+  "comuna_nombre": "LIMACHE",
+  "localidad_nombre": "LIMACHE",
+  "local_direccion": "URMENETA 99",
+  "funcionamiento_hora_apertura": "08:30:00",
+  "funcionamiento_hora_cierre": "18:30:00",
+  "local_telefono": "+56332415940",
+  "local_lat": "-32.9849921792696",
+  "local_lng": "-71.2757177058683",
+  "funcionamiento_dia": "jueves",
+  "fk_region": "6",
+  "fk_comuna": "59",
+  "fk_localidad": "17"
+}
+\end{verbatim}
+\textbf{Campos rescatados:} Se rescata \texttt{local\_nombre}, \texttt{local\_direccion}, \texttt{local\_lat}, \texttt{local\_lng}, \texttt{funcionamiento\_hora\_apertura}, \texttt{funcionamiento\_hora\_cierre} y \texttt{funcionamiento\_dia}. Los datos de región o comuna son descartados ya que el filtro es puramente geodésico (coordenadas).
+
+\subsection{API de la UTEM (Farmacia más cercana)}
+El endpoint \texttt{/v1/farmacias/\{lat\}/\{lng\}} devuelve un solo objeto con la farmacia más cercana según el algoritmo del profesor.
+
+\subsubsection{Hallazgo Técnico y Decisión de UI (Fase 4)}
+Mediante pruebas de integración (TDD) se comprobó que el backend del profesor \textbf{sí implementa un filtro de distancia geoespacial} (arroja \texttt{404 Not Found} si se consulta desde zonas lejanas como Arica o Punta Arenas). Sin embargo, al ser un entorno de pruebas, su base de datos es sumamente reducida y suele retornar la misma farmacia ("SALVADOR GUTIERREZ") de manera constante para cualquier ubicación dentro del radio de Santiago. 
+Por este motivo y para evitar confusiones de usabilidad en la presentación (donde el usuario vería la farmacia UTEM destacada muy lejos y las del MINSAL cerca), se tomó la decisión técnica de \textbf{desactivar temporalmente el renderizado de la capa de marcadores del MINSAL}, dejando el mapa limpio y a la espera de implementar la lógica visual definitiva en la Fase 5.
+
+\begin{verbatim}
+{
+  "apertura_normal": "00:00:00",
+  "cadena": "Guti",
+  "cierre_normal": "00:00:00",
+  "direccion": "CALLE SALVADOR GUITIERREZ 7902, TURNOS, CERRO NAVIA",
+  "latitude": -33.4173332,
+  "longitude": -70.7475457,
+  "nombre": "SALVADOR GUTIERREZ",
+  "telefono": 0,
+  "tienda": 10245
+}
+\end{verbatim}
+\textbf{Campos rescatados:} Se rescata \texttt{nombre}, \texttt{direccion}, \texttt{latitude}, \texttt{longitude}, \texttt{apertura\_normal} y \texttt{cierre\_normal}.
+
 \end{document}

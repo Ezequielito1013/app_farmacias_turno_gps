@@ -4,6 +4,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../proveedores/proveedor_gps.dart';
 import '../../auth/proveedores/proveedor_auth.dart';
+import '../../clima/widgets/widget_clima.dart';
+import '../../farmacias/proveedores/proveedor_farmacias.dart';
 
 /// Pantalla principal que actúa como el Dashboard de la aplicación.
 /// Muestra el clima (Fase 4), el mapa y el botón de búsqueda.
@@ -14,6 +16,12 @@ class PantallaDashboard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Escuchamos el estado de la ubicación del usuario
     final ubicacionEstado = ref.watch(ubicacionUsuarioProvider);
+
+    // Escuchamos las farmacias globales del MINSAL
+    final minsalEstado = ref.watch(farmaciasMinsalProvider);
+
+    // Escuchamos la farmacia destacada de la UTEM
+    final utemEstado = ref.watch(farmaciaCercanaUtemProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -34,20 +42,19 @@ class PantallaDashboard extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // 1. Header: Widget del Clima (Mockup por ahora)
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.wb_sunny, color: Colors.orange, size: 30),
-                SizedBox(width: 10),
-                Text(
-                  '22°C - Mayormente Soleado',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ],
+          // 1. Header: Widget del Clima Dinámico
+          ubicacionEstado.when(
+            loading: () => const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text('Esperando GPS para obtener el clima...'),
             ),
+            error: (err, stack) => const SizedBox.shrink(),
+            data: (posicion) {
+              if (posicion == null) return const SizedBox.shrink();
+              return WidgetClima(
+                ubicacion: LatLng(posicion.latitude, posicion.longitude),
+              );
+            },
           ),
 
           // 2. Cuerpo: Mapa Interactivo Minimalista
@@ -101,10 +108,61 @@ class PantallaDashboard extends ConsumerWidget {
                         posicion.longitude,
                       );
 
+                      // Construimos la lista de marcadores dinámicamente
+                      final List<Marker> marcadores = [];
+
+                      // A) Marcador del Usuario (Azul)
+                      marcadores.add(
+                        Marker(
+                          point: ubicacionUsuario,
+                          width: 50,
+                          height: 50,
+                          child: const Icon(
+                            Icons.person_pin_circle,
+                            color: Colors.blueAccent,
+                            size: 50,
+                          ),
+                        ),
+                      );
+
+                      // B) Marcadores de MINSAL (Reactivados)
+                      for (var farmacia in minsalEstado) {
+                        marcadores.add(
+                          Marker(
+                            point: LatLng(farmacia.latitud, farmacia.longitud),
+                            width: 30,
+                            height: 30,
+                            child: const Icon(
+                              Icons.local_pharmacy,
+                              color: Colors.green,
+                              size: 20,
+                            ),
+                          ),
+                        );
+                      }
+
+                      // C) Marcador Destacado de UTEM (Rojo gigante)
+                      utemEstado.whenData((farmaciaUtem) {
+                        if (farmaciaUtem != null) {
+                          marcadores.add(
+                            Marker(
+                              point: LatLng(farmaciaUtem.latitud, farmaciaUtem.longitud),
+                              width: 60,
+                              height: 60,
+                              child: const Icon(
+                                Icons.location_on,
+                                color: Colors.redAccent,
+                                size: 60,
+                              ),
+                            ),
+                          );
+                        }
+                      });
+
                       return FlutterMap(
                         options: MapOptions(
                           initialCenter: ubicacionUsuario,
-                          initialZoom: 15.0,
+                          initialZoom: 14.0,
                         ),
                         children: [
                           // Capa de los Mosaicos (CartoDB Positron - Minimalista y gratis)
@@ -112,20 +170,9 @@ class PantallaDashboard extends ConsumerWidget {
                             urlTemplate: 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
                             userAgentPackageName: 'com.ezekim.farmaciasgps',
                           ),
-                          // Capa de Marcadores
+                          // Capa de Marcadores (Usuario + MINSAL + UTEM)
                           MarkerLayer(
-                            markers: [
-                              Marker(
-                                point: ubicacionUsuario,
-                                width: 50,
-                                height: 50,
-                                child: const Icon(
-                                  Icons.person_pin_circle,
-                                  color: Colors.blueAccent,
-                                  size: 50,
-                                ),
-                              ),
-                            ],
+                            markers: marcadores,
                           ),
                         ],
                       );
@@ -150,17 +197,24 @@ class PantallaDashboard extends ConsumerWidget {
                   ),
                 ),
                 onPressed: () {
-                  // Lógica de Fase 4: Calcular distancia a las farmacias
-                  debugPrint('Buscar farmacias más cercanas presionado');
+                  // Le decimos a Riverpod que el usuario apretó buscar,
+                  // actualizando el estado de la ubicación a buscar.
+                  final pos = ref.read(ubicacionUsuarioProvider).value;
+                  if (pos != null) {
+                    ref.read(ubicacionBusquedaFarmaciaProvider.notifier).actualizar(
+                        LatLng(pos.latitude, pos.longitude));
+                  }
                 },
-                child: const Text(
-                  'Encontrar Farmacia Más Cercana',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
+                child: utemEstado.isLoading 
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text(
+                      'Encontrar Farmacia Más Cercana',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
               ),
             ),
           ),

@@ -45,9 +45,9 @@
 - [x] Configuración de la API de CartoDB Positron (`flutter_map`) e incrustación del mapa minimalista.
 
 ### Fase 4: Consumo de Datos (Farmacias y Clima) (RU-03)
-- [ ] Pruebas a la API del profesor y creación de modelos (Models).
-- [ ] Implementación de los servicios HTTP con `dio`.
-- [ ] Conectar la respuesta de la API con los marcadores del mapa libre y la UI del clima.
+- [x] Pruebas a la API del profesor y creación de modelos (Models).
+- [x] Implementación de los servicios HTTP con `dio`.
+- [x] Conectar la respuesta de la API con los marcadores del mapa libre y la UI del clima.
 
 ### Fase 5: UI/UX, Refactorización y Entregables
 - [ ] Aplicar diseño moderno y estético.
