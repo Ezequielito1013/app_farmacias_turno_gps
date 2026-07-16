@@ -8,6 +8,7 @@ import '../../clima/widgets/widget_clima.dart';
 import '../../farmacias/proveedores/proveedor_farmacias.dart';
 import '../widgets/botones_mapa.dart';
 import '../widgets/marcador_destacado.dart';
+import '../widgets/marcador_usuario.dart';
 import '../../../core/utils/animacion_mapa.dart';
 
 /// Pantalla principal (Dashboard) rediseñada con Stack.
@@ -110,7 +111,7 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
               width: 50,
               height: 50,
               rotate: true, // Sigue la rotación del usuario
-              child: const Icon(Icons.person_pin_circle, color: Colors.blueAccent, size: 40),
+              child: const MarcadorUsuario(),
             ),
           );
 
