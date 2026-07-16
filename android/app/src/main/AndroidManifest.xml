@@ -2,6 +2,9 @@
     <!-- Permisos de Geolocalización para la Fase 3 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    
+    <!-- Permiso de Internet (Obligatorio en Release Mode) -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:label="app_farmacias_turno_gps"

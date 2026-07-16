@@ -56,17 +56,23 @@ class WidgetClima extends ConsumerWidget {
               ],
             ),
             // Estado Error
-            error: (err, stack) => Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.cloud_off, color: Colors.grey, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  'Clima no disponible',
-                  style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
+            error: (err, stack) {
+              final String mensaje = err.toString().contains('404')
+                  ? 'Fuera de cobertura UTEM'
+                  : 'Clima no disponible';
+              
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.cloud_off, color: Colors.grey, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    mensaje,
+                    style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              );
+            },
             // Estado Éxito
             data: (clima) {
               final esLluvia = clima.humedad > 80;

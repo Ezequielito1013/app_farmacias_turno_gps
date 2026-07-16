@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
 import '../proveedores/proveedor_gps.dart';
 import '../../auth/proveedores/proveedor_auth.dart';
 import '../../clima/widgets/widget_clima.dart';
@@ -21,10 +22,33 @@ class PantallaDashboard extends ConsumerStatefulWidget {
   ConsumerState<PantallaDashboard> createState() => _PantallaDashboardState();
 }
 
-class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with TickerProviderStateMixin {
+class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with TickerProviderStateMixin, WidgetsBindingObserver {
   final MapController _mapController = MapController();
   static const double _distanciaDeduplicacion = 20.0; // Distancia en metros para considerar duplicado
   bool _busquedaInicialRealizada = false;
+  bool _fueAAjustes = false; // Flag para saber si el usuario fue a los ajustes
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _fueAAjustes) {
+      _fueAAjustes = false;
+      // Si la app vuelve a primer plano Y venimos de los Ajustes,
+      // forzamos la recarga del proveedor para que intente obtener el GPS nuevamente.
+      ref.invalidate(ubicacionUsuarioProvider);
+    }
+  }
 
   void _centrarUsuario() {
     final ubicacion = ref.read(ubicacionUsuarioProvider).value;
@@ -268,11 +292,39 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
   Widget _buildErrorState(String error) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Text(
-          'Error de Ubicación:\n$error',
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.location_off_rounded, size: 80, color: Colors.redAccent),
+            const SizedBox(height: 24),
+            const Text(
+              'Oops! Necesitamos tu ubicación',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Para mostrarte las farmacias de turno más cercanas, necesitas concedernos el permiso de ubicación.\n\n($error)',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16, color: Colors.black54),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () async {
+                _fueAAjustes = true;
+                Geolocator.openAppSettings();
+              },
+              icon: const Icon(Icons.settings),
+              label: const Text('Abrir Ajustes'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueAccent,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
         ),
       ),
     );

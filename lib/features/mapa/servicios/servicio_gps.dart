@@ -13,7 +13,7 @@ class ServicioGps {
     servicioHabilitado = await Geolocator.isLocationServiceEnabled();
     if (!servicioHabilitado) {
       debugPrint('El servicio de ubicación está deshabilitado.');
-      return Future.error('Los servicios de ubicación están deshabilitados.');
+      return null;
     }
 
     // 2. Revisamos el estado actual del permiso en Android.
@@ -24,16 +24,14 @@ class ServicioGps {
       permiso = await Geolocator.requestPermission();
       if (permiso == LocationPermission.denied) {
         debugPrint('Los permisos de ubicación fueron denegados.');
-        return Future.error('Los permisos de ubicación fueron denegados.');
+        return null;
       }
     }
     
     // Si el usuario marcó "No preguntar de nuevo" (denegado permanentemente).
     if (permiso == LocationPermission.deniedForever) {
       debugPrint('Los permisos de ubicación están denegados permanentemente.');
-      return Future.error(
-        'Los permisos de ubicación están denegados permanentemente, no podemos solicitar permisos.',
-      );
+      return null;
     } 
 
     // 3. Obtenemos la posición con alta precisión, pero con un límite de tiempo.
@@ -41,8 +39,8 @@ class ServicioGps {
     try {
       return await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 10), // ¡No esperar para siempre!
+          accuracy: LocationAccuracy.low, // Cambiado a 'low' para funcionar súper rápido en interiores usando WiFi/Antenas
+          timeLimit: Duration(seconds: 15), // Damos un poco más de margen
         ),
       );
     } catch (e) {
@@ -52,7 +50,7 @@ class ServicioGps {
       if (ultimaPosicion != null) {
         return ultimaPosicion;
       }
-      return Future.error('No se pudo triangular la señal GPS (Timeout).');
+      return null;
     }
   }
 }

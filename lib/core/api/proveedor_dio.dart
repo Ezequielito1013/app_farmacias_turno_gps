@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/logger.dart';
@@ -14,6 +16,15 @@ final dioProvider = Provider<Dio>((ref) {
   dio.options.baseUrl = 'https://api.sebastian.cl/cmutem/v1/';
   dio.options.connectTimeout = const Duration(seconds: 15);
   dio.options.receiveTimeout = const Duration(seconds: 15);
+
+  // Bypass SSL para dispositivos físicos en Release (igual que MINSAL)
+  dio.httpClientAdapter = IOHttpClientAdapter(
+    createHttpClient: () {
+      final client = HttpClient();
+      client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      return client;
+    },
+  );
 
   // Interceptor de seguridad
   dio.interceptors.add(InterceptorsWrapper(
