@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/logger.dart';
@@ -29,23 +30,52 @@ final dioProvider = Provider<Dio>((ref) {
   // Interceptor de seguridad
   dio.interceptors.add(InterceptorsWrapper(
     onRequest: (options, handler) async {
-      // 1. Instanciamos Google SignIn
-      final googleSignIn = GoogleSignIn();
+      // 1. Obtenemos la instancia global de GoogleSignIn
+      final servicioAuth = ref.read(servicioAuthProvider);
+      final googleSignIn = servicioAuth.googleSignIn;
       
       // 2. Intentamos recuperar el usuario logueado
       var cuentaGoogle = googleSignIn.currentUser;
-      cuentaGoogle ??= await googleSignIn.signInSilently();
+      
+      // En Android Release, a veces currentUser es nulo si se cerró la app. 
+      // Si es así, intentamos restaurar la sesión silenciosamente.
+      if (cuentaGoogle == null) {
+        try {
+          cuentaGoogle = await googleSignIn.signInSilently();
+        } catch (e) {
+          logger.e('Error en signInSilently: $e');
+        }
+      }
       
       if (cuentaGoogle != null) {
-        final auth = await cuentaGoogle.authentication;
-        if (auth.idToken != null) {
-          // Lo inyectamos en la cabecera "Authorization"
-          options.headers['Authorization'] = 'Bearer ${auth.idToken}';
-        } else {
-          logger.w('Dio Interceptor: ¡Token JWT de Google es nulo!');
+        try {
+          final auth = await cuentaGoogle.authentication;
+          if (auth.idToken != null) {
+            // Lo inyectamos en la cabecera "Authorization" tal como funcionó en USB
+            options.headers['Authorization'] = 'Bearer ${auth.idToken}';
+          } else {
+            logger.w('Dio Interceptor: ¡Token JWT de Google es nulo!');
+            ref.read(servicioAuthProvider).cerrarSesion();
+            throw DioException(
+              requestOptions: options,
+              error: 'Sesión inválida: idToken nulo. Inicia sesión nuevamente.',
+            );
+          }
+        } catch (e) {
+          logger.e('Error obteniendo auth de Google: $e');
+          ref.read(servicioAuthProvider).cerrarSesion();
+          throw DioException(
+            requestOptions: options,
+            error: 'Error de Google al obtener token. Inicia sesión nuevamente.',
+          );
         }
       } else {
         logger.w('Dio Interceptor: ¡No hay usuario autenticado en Google!');
+        ref.read(servicioAuthProvider).cerrarSesion();
+        throw DioException(
+          requestOptions: options,
+          error: 'Sesión caducada. Inicia sesión nuevamente.',
+        );
       }
       
       // Continuamos el viaje de la petición HTTP hacia el servidor

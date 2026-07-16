@@ -6,7 +6,14 @@ import '../modelos/usuario_modelo.dart';
 /// Servicio encargado de orquestar la comunicación con Firebase y Google (Principio de Responsabilidad Única).
 class ServicioAuth {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  // Añadir explícitamente el Web Client ID (Client Type 3) extraído del google-services.json
+  // Esto obliga a Google a devolver un idToken en Release mode.
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId: '274064298388-46krem66qll12omddqcb9sshlfenusfj.apps.googleusercontent.com',
+  );
+
+  /// Instancia global de Google SignIn para poder reutilizarla en el Interceptor (evita errores en Release)
+  GoogleSignIn get googleSignIn => _googleSignIn;
 
   /// Flujo principal para iniciar sesión con Google
   Future<UsuarioModelo?> iniciarSesionConGoogle() async {

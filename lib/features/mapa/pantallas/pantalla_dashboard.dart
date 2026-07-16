@@ -104,6 +104,17 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
         Future.delayed(const Duration(milliseconds: 200), () {
           if (mounted) _centrarFarmaciaDestacada();
         });
+      } else if (previous?.isLoading == true && next.hasError) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Error en la API del Profesor. Verifica usar tu correo @utem.cl o que haya farmacias cerca.'),
+              backgroundColor: Colors.redAccent,
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
       }
     });
 
