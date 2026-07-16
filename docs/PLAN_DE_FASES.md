@@ -49,9 +49,16 @@
 - [x] Implementación de los servicios HTTP con `dio`.
 - [x] Conectar la respuesta de la API con los marcadores del mapa libre y la UI del clima.
 
-### Fase 5: UI/UX, Refactorización y Entregables
-- [ ] Aplicar diseño moderno y estético.
-- [ ] Elaboración del archivo `README.md` técnico (pasos de instalación y dependencias) según la rúbrica.
+### Fase 5: Validaciones de Seguridad y Sesión (RU-01)
+- [x] Bloqueo Total a No Autenticados: Impedir el acceso a las pantallas principales sin login.
+- [x] Persistencia de Sesión: Redirección automática desde el splash/login hacia el mapa si ya hay una sesión activa.
+
+### Fase 6: UI/UX y Refactorización
+- [ ] Aplicar diseño moderno y estético a toda la aplicación.
+
+### Fase 7: Entregables Finales y Cierre
+- [ ] Elaboración del archivo `README.md` técnico (pasos de instalación, configuración de Firebase y breve explicación de la arquitectura).
+- [ ] Agregar al docente (`sebasalazar`) como colaborador en el repositorio de GitHub.
 
 ## Plan de Verificación (QA)
 - [x] **Fase 0**: Revisión y aprobación de los diagramas C4 y el compilado de LaTeX.

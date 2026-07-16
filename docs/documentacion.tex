@@ -1,5 +1,7 @@
 \documentclass[12pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
 \usepackage[spanish]{babel}
 \usepackage{graphicx}
 \usepackage{float}
@@ -40,7 +42,7 @@ Se han definido las siguientes normas de calidad para el código fuente:
 \end{itemize}
 
 \subsection{Restricciones de Infraestructura y Servicios}
-Para garantizar la viabilidad académica del proyecto y evitar costos imprevistos, se ha establecido la directriz estricta de utilizar exclusivamente servicios en la nube y herramientas \textbf{100\% gratuitas (Cloud Free)}. Está terminantemente prohibido incorporar dependencias o APIs que requieran el ingreso de tarjetas de crédito o configuración de facturación. Un ejemplo de la aplicación de esta regla es el uso de OpenStreetMap en lugar del servicio comercial de Google Maps API.
+Para garantizar la viabilidad académica del proyecto y evitar costos imprevistos, se ha establecido la directriz estricta de utilizar exclusivamente servicios en la nube y herramientas \textbf{100\% gratuitas (Cloud Free)}. Está terminantemente prohibido incorporar dependencias o APIs que requieran el ingreso de tarjetas de crédito o configuración de facturación. Un ejemplo de la aplicación de esta regla es el uso de mosaicos de CartoDB Positron en lugar del servicio comercial de Google Maps API.
 
 \section{Diseño del Sistema}
 
@@ -62,7 +64,7 @@ El diagrama de contexto ilustra cómo el usuario interactúa con la aplicación 
 \node[user] (usuario) {Usuario};
 \node[box, right=of usuario] (app) {App Flutter\\ (Android)};
     \node[ext, above right=of app] (firebase) {Firebase\\ Auth};
-    \node[ext, right=of app] (maps) {OpenStreet\\ Map API};
+    \node[ext, right=of app] (maps) {CartoDB\\ Positron};
     \node[ext, below right=of app] (api) {API REST\\ (Profesor)};
 
 % Flechas
@@ -114,46 +116,46 @@ El diagrama de contenedores detalla la estructura interna de la aplicación Flut
 Para comprender mejor la arquitectura de software planteada, es fundamental entender el rol de cada capa y cómo fluye la información desde el usuario hasta los servidores externos:
 
 \begin{enumerate}
-    \item \textbf{Capa de Presentación (UI/UX):} Es la interfaz visual pura (botones, mapas, textos). Esta capa es "tonta", es decir, no contiene lógica de negocio ni hace peticiones a internet. Solo captura las acciones del usuario (ej. presionar "Buscar Farmacias") y muestra los datos que le entrega la capa inferior.
+    \item \textbf{Capa de Presentación (UI/UX):} Es la interfaz visual pura (botones, mapas, textos). Esta capa es \textit{tonta}, es decir, no contiene lógica de negocio ni hace peticiones a internet. Solo captura las acciones del usuario (ej. presionar \texttt{Buscar Farmacias}) y muestra los datos que le entrega la capa inferior.
     
-    \item \textbf{Gestión de Estado (Riverpod):} Funciona como el "cerebro" o puente intermedio. Cuando el usuario hace una acción en la UI, la Gestión de Estado se entera y decide qué hacer. Su trabajo principal es solicitar datos a los Servicios, mantener esos datos almacenados temporalmente en la memoria del teléfono, y avisarle a la UI de forma reactiva para que se actualice o redibuje cuando los datos cambien.
+    \item \textbf{Gestión de Estado (Riverpod):} Funciona como el \textit{cerebro} o puente intermedio. Cuando el usuario hace una acción en la UI, la Gestión de Estado se entera y decide qué hacer. Su trabajo principal es solicitar datos a los Servicios, mantener esos datos almacenados temporalmente en la memoria del teléfono, y avisarle a la UI de forma reactiva para que se actualice o \textit{redibuje} cuando los datos cambien.
     
-    \item \textbf{Servicios y Repositorios:} Son los "obreros". Tienen el código específico para comunicarse con el mundo exterior. Utilizan herramientas como \texttt{Dio} para hacer peticiones HTTP a las APIs, o paquetes como \texttt{Geolocator} para obtener coordenadas del chip GPS. 
+    \item \textbf{Servicios y Repositorios:} Son los \textit{obreros}. Tienen el código específico para comunicarse con el mundo exterior. Utilizan herramientas como \texttt{Dio} para hacer peticiones HTTP a las APIs, o paquetes como \texttt{Geolocator} para obtener coordenadas del chip GPS. 
     
     \item \textbf{Sistemas Externos:} Son los proveedores finales de la información que consume la capa de Servicios. Incluyen:
     \begin{itemize}
         \item \textbf{Firebase Auth:} Mantiene la persistencia de sesión segura usando las cuentas de Google del usuario.
-        \item \textbf{OpenStreetMap API:} Brinda la cartografía de uso libre y gratuito para dibujar los mapas, evitando los costos de facturación de Google Maps.
-        \item \textbf{API del Profesor:} Servidor RESTful que retorna la información climática y la lista de farmacias de turno en bruto (formato JSON).
+        \item \textbf{CartoDB Positron:} Brinda los mosaicos cartográficos de uso libre y gratuito para dibujar los mapas (vía \texttt{flutter\_map}), evitando los costos de facturación de Google Maps.
+        \item \textbf{API del Profesor:} Servidor RESTful que retorna la información climática local y, al proveer coordenadas, la farmacia de turno más cercana a dicha ubicación (formato JSON).
     \end{itemize}
 \end{enumerate}
 
 \textbf{Ejemplo de un Flujo Completo (paso a paso):}
 \begin{enumerate}
-    \item El usuario abre la app y pulsa el botón "Ver farmacias cercanas" en la \textbf{UI}.
+    \item El usuario abre la app y pulsa el botón \texttt{Ver farmacias cercanas} en la \textbf{UI}.
     \item Ese botón no hace la búsqueda directa, sino que le avisa a \textbf{Riverpod} (Gestión de Estado) que se necesitan los datos.
     \item Riverpod llama al \textbf{Servicio} de Farmacias y al Servicio de GPS.
     \item Los Servicios hacen el "trabajo pesado": Encienden el GPS del teléfono y hacen la petición HTTP a la \textbf{API del profesor}.
-    \item La API responde con un texto en formato JSON. El Servicio toma ese texto, lo "traduce" y lo convierte en una lista de objetos \texttt{Farmacia} que Dart entiende, devolviéndosela a Riverpod.
+    \item La API responde con un texto en formato JSON. El Servicio toma ese texto, lo \textit{traduce} y lo convierte en una lista de objetos \texttt{Farmacia} que Dart entiende, devolviéndosela a Riverpod.
     \item Riverpod guarda esa lista de farmacias en su memoria interna.
-    \item Automáticamente (y de forma reactiva), la \textbf{UI} detecta que Riverpod tiene nuevos datos, por lo que se "redibuja" a sí misma mostrando finalmente los pines en el mapa para el usuario.
+    \item Automáticamente (y de forma reactiva), la \textbf{UI} detecta que Riverpod tiene nuevos datos, por lo que se \textit{redibuja} a sí misma mostrando finalmente los pines en el mapa para el usuario.
 \end{enumerate}
 
 
-\section{Estrategias de Optimización y Rendimiento (Fase 4.1)}
+\section{Estrategias de Optimización y Rendimiento}
 
-Para la integración de los datos en tiempo real, se tomó la decisión arquitectónica de consumir de forma paralela dos fuentes de datos distintas: La API oficial del MINSAL (Farmacias de Turno a nivel nacional) y la API académica de la UTEM (Clima y Farmacia más cercana).
+Para la integración de los datos en tiempo real, se tomó la decisión arquitectónica de consumir de forma paralela dos fuentes de datos distintas: La API oficial del MINSAL (Farmacias de Turno a nivel nacional) y la API proporcionada por el profesor (Clima y Farmacia más cercana). La API del MINSAL muestra todas las farmacias de turno operativas, mientras que la del profesor aplica un algoritmo para entregar únicamente la farmacia más próxima. Esta dualidad nos permite mostrar el panorama general nacional y, al mismo tiempo, utilizar la lógica del profesor para remarcar y destacar la farmacia recomendada dentro de la interfaz.
 
 \subsection{Problema de Rendimiento (Renderizado Masivo)}
-La API del MINSAL retorna la totalidad de las farmacias de turno del país (aproximadamente 2047 registros) en una única petición HTTP. Durante la fase de desarrollo, intentar renderizar los 2047 marcadores simultáneamente en \texttt{flutter\_map} causaba una caída drástica en los cuadros por segundo (FPS) y provocaba bloqueos (hangs) en el hilo principal de la aplicación móvil.
+La API del MINSAL retorna la totalidad de las farmacias de turno del país en una única petición HTTP. Ante el posible riesgo de saturar el dispositivo móvil y causar caídas de cuadros por segundo (FPS) al intentar renderizar una gran cantidad de marcadores simultáneamente en el mapa, se optó por implementar una estrategia de filtrado por proximidad.
 
 \subsection{Solución Arquitectónica (Filtro Síncrono en RAM)}
-Para mantener la máxima fluidez sin sacrificar la funcionalidad, se diseñó la siguiente estrategia mediante la gestión de estado de Riverpod:
+Para mantener la máxima fluidez sin sacrificar la funcionalidad, se diseñó la siguiente estrategia mediante la gestión de estado de Riverpod, además de las otras estrategias aplicadas:
 
 \begin{enumerate}
-    \item \textbf{Descarga en Segundo Plano (Provider 1):} Al iniciar la aplicación, un proveedor aislado realiza la petición HTTP de 900KB al MINSAL. Esta operación se realiza una sola vez por ciclo de vida de la app y la lista de 2047 farmacias se aloja directamente en la memoria RAM.
-    \item \textbf{Filtro de Proximidad (Provider 2):} Un segundo proveedor reactivo escucha simultáneamente la lista en RAM y el flujo de eventos del GPS del dispositivo. Utilizando la librería \texttt{latlong2}, calcula la distancia geodésica (Haversine) entre el usuario y cada una de las 2047 farmacias.
-    \item \textbf{Renderizado Limitado:} El filtro descarta todas las farmacias que superen un radio de 5 kilómetros. Como resultado, la interfaz de usuario (UI) recibe de forma instantánea una lista reducida de 10 a 30 farmacias, garantizando que el mapa se renderice sin problemas de rendimiento.
+    \item \textbf{Descarga en Segundo Plano (Provider 1):} Al iniciar la aplicación, un proveedor aislado realiza la petición HTTP al MINSAL. Esta operación se realiza una sola vez por ciclo de vida de la app y la lista completa de farmacias se aloja directamente en la memoria RAM.
+    \item \textbf{Filtro de Proximidad (Provider 2):} Un segundo proveedor reactivo escucha simultáneamente la lista en RAM y el flujo de eventos del GPS del dispositivo. Utilizando la librería \texttt{latlong2}, calcula la distancia geodésica (Haversine) entre el usuario y cada una de las farmacias listadas.
+    \item \textbf{Renderizado Limitado:} El filtro descarta y evita renderizar todas las farmacias que se encuentren a más de 50 km de la ubicación del usuario. Como resultado, la interfaz de usuario (UI) recibe de forma instantánea una lista reducida y relevante, garantizando que el mapa se renderice sin problemas de rendimiento.
 \end{enumerate}
 
 \subsection{Estrategia de Caché y Persistencia (Trabajo Futuro)}
@@ -165,7 +167,7 @@ En una futura fase (Persistencia Local), se contempla la posibilidad de guardar 
 Para optimizar el uso de memoria RAM, la aplicación no almacena todos los campos proporcionados por las APIs, sino que aplica un mapeo selectivo extrayendo únicamente los campos necesarios para renderizar el mapa y filtrar los horarios.
 
 \subsection{API del MINSAL (Farmacias de Turno Nacional)}
-El endpoint \texttt{/getLocalesTurnos.php} devuelve una lista de objetos JSON exclusivamente con las farmacias que están operativas en turno de emergencia o 24 horas. La cantidad de registros devueltos es dinámica y depende enteramente del momento del día en que se consulte (por ejemplo, en la madrugada la cantidad se reduce drásticamente respecto al día). Originalmente se utilizó erróneamente el endpoint \texttt{getLocales.php}, el cual retornaba todo el directorio nacional sin discriminar turnos.
+El endpoint \texttt{/getLocalesTurnos.php} devuelve una lista de objetos JSON con las farmacias que están operativas en turno. A diferencia del directorio completo nacional, este endpoint entrega específicamente las que se encuentran de turno.
 \begin{verbatim}
 {
   "fecha": "16-07-26",
@@ -185,14 +187,10 @@ El endpoint \texttt{/getLocalesTurnos.php} devuelve una lista de objetos JSON ex
   "fk_localidad": "17"
 }
 \end{verbatim}
-\textbf{Campos rescatados:} Se rescata \texttt{local\_nombre}, \texttt{local\_direccion}, \texttt{local\_lat}, \texttt{local\_lng}, \texttt{funcionamiento\_hora\_apertura}, \texttt{funcionamiento\_hora\_cierre} y \texttt{funcionamiento\_dia}. Los datos de región o comuna son descartados ya que el filtro es puramente geodésico (coordenadas).
+\textbf{Campos rescatados:} Se rescata \texttt{local\_nombre}, \texttt{local\_direccion}, \texttt{local\_lat}, \texttt{local\_lng}, \texttt{funcionamiento\_\allowbreak hora\_\allowbreak apertura}, \texttt{funcionamiento\_\allowbreak hora\_\allowbreak cierre} y \texttt{funcionamiento\_\allowbreak dia}. Los datos de región o comuna son descartados ya que el filtro es puramente geodésico (coordenadas).
 
-\subsection{API de la UTEM (Farmacia más cercana)}
-El endpoint \texttt{/v1/farmacias/\{lat\}/\{lng\}} devuelve un solo objeto con la farmacia más cercana según el algoritmo del profesor.
-
-\subsubsection{Hallazgo Técnico y Decisión de UI (Fase 4)}
-Mediante pruebas de integración (TDD) se comprobó que el backend del profesor \textbf{sí implementa un filtro de distancia geoespacial} (arroja \texttt{404 Not Found} si se consulta desde zonas lejanas como Arica o Punta Arenas). Sin embargo, al ser un entorno de pruebas, su base de datos es sumamente reducida y suele retornar la misma farmacia ("SALVADOR GUTIERREZ") de manera constante para cualquier ubicación dentro del radio de Santiago. 
-Por este motivo y para evitar confusiones de usabilidad en la presentación (donde el usuario vería la farmacia UTEM destacada muy lejos y las del MINSAL cerca), se tomó la decisión técnica de \textbf{desactivar temporalmente el renderizado de la capa de marcadores del MINSAL}, dejando el mapa limpio y a la espera de implementar la lógica visual definitiva en la Fase 5.
+\subsection{API del Profesor (Farmacia más cercana)}
+El endpoint \texttt{/v1/farmacias/\{lat\}/\{lng\}} devuelve un solo objeto con la farmacia más cercana a las coordenadas entregadas, procesada mediante el algoritmo del backend del profesor.
 
 \begin{verbatim}
 {
@@ -208,5 +206,18 @@ Por este motivo y para evitar confusiones de usabilidad en la presentación (don
 }
 \end{verbatim}
 \textbf{Campos rescatados:} Se rescata \texttt{nombre}, \texttt{direccion}, \texttt{latitude}, \texttt{longitude}, \texttt{apertura\_normal} y \texttt{cierre\_normal}.
+
+\subsection{API del Profesor (Clima Local)}
+El endpoint \texttt{/v1/clima/\{lat\}/\{lng\}} retorna las condiciones meteorológicas actuales para la ubicación solicitada.
+
+\begin{verbatim}
+{
+  "temperatura": 14.5,
+  "humedad": 82,
+  "velocidad_viento": 5.2,
+  "fecha_hora": "2026-07-16 08:30:00"
+}
+\end{verbatim}
+\textbf{Campos rescatados:} Se rescata \texttt{temperatura}, \texttt{humedad}, \texttt{velocidad\_viento} y \texttt{fecha\_hora}.
 
 \end{document}
