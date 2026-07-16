@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Para Clipboard
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../farmacias/proveedores/proveedor_farmacias.dart';
@@ -9,10 +10,23 @@ import '../../farmacias/proveedores/proveedor_farmacias.dart';
 class TarjetaDetallesFarmacia extends ConsumerWidget {
   const TarjetaDetallesFarmacia({super.key});
 
-  Future<void> _abrirNavegador(String urlString) async {
+  Future<void> _abrirNavegador(BuildContext context, String urlString) async {
     final uri = Uri.parse(urlString);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    try {
+      // Forzamos la apertura directa (externalApplication) sin canLaunchUrl,
+      // para saltarnos la restricción de visibilidad de paquetes de Android 11+
+      final success = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!success && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No se encontró una aplicación para abrir la ruta.')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al intentar abrir el mapa.')),
+        );
+      }
     }
   }
 
@@ -70,7 +84,10 @@ class TarjetaDetallesFarmacia extends ConsumerWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.location_on, size: 18, color: Colors.redAccent),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 2.0),
+                      child: Icon(Icons.location_on, size: 18, color: Colors.redAccent),
+                    ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
@@ -78,6 +95,19 @@ class TarjetaDetallesFarmacia extends ConsumerWidget {
                         style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.w500),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    InkWell(
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: farmacia.direccion));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Dirección copiada al portapapeles')),
+                        );
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.only(top: 2.0, left: 4.0, right: 4.0, bottom: 4.0),
+                        child: Icon(Icons.copy, size: 18, color: Colors.blueAccent),
                       ),
                     ),
                   ],
@@ -111,7 +141,7 @@ class TarjetaDetallesFarmacia extends ConsumerWidget {
                           elevation: 2,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         ),
-                        onPressed: () => _abrirNavegador(
+                        onPressed: () => _abrirNavegador(context,
                             'https://www.google.com/maps/dir/?api=1&destination=${farmacia.latitud},${farmacia.longitud}'),
                         icon: const Icon(Icons.map, size: 18),
                         label: const Text('Maps', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
@@ -126,7 +156,7 @@ class TarjetaDetallesFarmacia extends ConsumerWidget {
                           elevation: 2,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         ),
-                        onPressed: () => _abrirNavegador(
+                        onPressed: () => _abrirNavegador(context,
                             'https://waze.com/ul?ll=${farmacia.latitud},${farmacia.longitud}&navigate=yes'),
                         icon: const Icon(Icons.navigation, size: 18),
                         label: const Text('Waze', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
