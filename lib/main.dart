@@ -30,7 +30,7 @@ class AppFarmacias extends ConsumerWidget {
     final estadoAuth = ref.watch(estadoAuthStateProvider);
 
     return MaterialApp(
-      title: 'Farmacias de Turno',
+      title: 'FarmaciaTurno',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),

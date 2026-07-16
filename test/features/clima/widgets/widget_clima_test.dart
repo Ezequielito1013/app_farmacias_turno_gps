@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:app_farmacias_turno_gps/features/clima/widgets/widget_clima.dart';
 import 'package:app_farmacias_turno_gps/features/clima/proveedores/proveedor_clima.dart';
-import 'package:app_farmacias_turno_gps/features/clima/modelos/modelo_clima.dart';
+
 
 void main() {
   testWidgets('WidgetClima muestra "Fuera de cobertura UTEM" cuando el provider falla con un 404', (WidgetTester tester) async {

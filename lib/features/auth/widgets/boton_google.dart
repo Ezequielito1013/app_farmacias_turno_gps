@@ -2,14 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../proveedores/proveedor_auth.dart';
 
-class BotonGoogle extends ConsumerWidget {
+class BotonGoogle extends ConsumerStatefulWidget {
   const BotonGoogle({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Observamos el estado global de autenticación para saber si hay una carga en curso
+  ConsumerState<BotonGoogle> createState() => _BotonGoogleState();
+}
+
+class _BotonGoogleState extends ConsumerState<BotonGoogle> {
+  bool _cargandoLocal = false;
+
+  @override
+  Widget build(BuildContext context) {
+    // Mantenemos la lógica global por si ya viene cargando de entrada
     final estadoAuth = ref.watch(estadoAuthStateProvider);
-    final bool estaCargando = estadoAuth.isLoading;
+    final bool estaCargando = estadoAuth.isLoading || _cargandoLocal;
 
     return SizedBox(
       width: double.infinity,
@@ -26,8 +33,20 @@ class BotonGoogle extends ConsumerWidget {
         onPressed: estaCargando
             ? null // Si está procesando el login, el botón se deshabilita
             : () async {
-                // Ejecutamos la función de login del servicio
-                await ref.read(servicioAuthProvider).iniciarSesionConGoogle();
+                setState(() {
+                  _cargandoLocal = true;
+                });
+                try {
+                  // Ejecutamos la función de login del servicio
+                  await ref.read(servicioAuthProvider).iniciarSesionConGoogle();
+                } catch (e) {
+                  // Si ocurre un error o el usuario cancela, detenemos el estado de carga
+                  if (mounted) {
+                    setState(() {
+                      _cargandoLocal = false;
+                    });
+                  }
+                }
               },
         child: estaCargando
             ? const SizedBox(
