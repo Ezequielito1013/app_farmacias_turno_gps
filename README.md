@@ -15,11 +15,12 @@ Aplicación móvil multiplataforma desarrollada en Flutter para la asignatura de
 
 
 ## 🚀 Características Principales
-- **Autenticación Segura:** Acceso exclusivo mediante Google Sign-In (Firebase Auth) con persistencia de sesión.
-- **Geolocalización en Tiempo Real:** Obtención de coordenadas mediante el sensor GPS del dispositivo.
-- **Mapas Interactivos 100% Gratuitos:** Renderizado de mapas utilizando `flutter_map` y mosaicos de CartoDB Positron.
-- **Auto-Búsqueda:** Búsqueda automática de la farmacia más cercana al detectar la ubicación inicial.
-- **Navegación Asistida:** Botones dedicados para abrir la dirección de la farmacia directamente en Google Maps o Waze.
+- **Autenticación Segura:** Acceso exclusivo mediante Google Sign-In (Firebase Auth) con gestión profesional de expiración de sesión.
+- **Mapas Interactivos 100% Gratuitos:** Renderizado de mapas utilizando `flutter_map` (estilo CartoDB Positron) sin costos de facturación.
+- **Consumo API Robusto:** Integración con la **API del Profesor** y la **API MINSAL** con deduplicación visual de datos.
+- **Clima en Tiempo Real:** Widget flotante superior para evaluar las condiciones antes de salir.
+- **Navegación Asistida:** Redireccionamiento automático de la dirección hacia **Waze** y **Google Maps**.
+- **UX Dinámica y Navegación Fluida:** Transiciones animadas de cámara para un desplazamiento suave, interfaz *Glassmorphism* (efecto cristal) y marcadores interactivos con micro-animaciones (efecto pulso) para destacar la farmacia más cercana.
 
 ---
 
