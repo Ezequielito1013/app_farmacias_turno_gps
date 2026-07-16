@@ -4,6 +4,7 @@ class ModeloFarmacia {
   final String direccion;
   final double latitud;
   final double longitud;
+  final String telefono;
   final String? apertura;
   final String? cierre;
   final String? dia;
@@ -13,6 +14,7 @@ class ModeloFarmacia {
     required this.direccion,
     required this.latitud,
     required this.longitud,
+    this.telefono = '',
     this.apertura,
     this.cierre,
     this.dia,
@@ -25,6 +27,7 @@ class ModeloFarmacia {
       direccion: json['direccion'] ?? 'Sin dirección',
       latitud: (json['latitude'] ?? 0).toDouble(),
       longitud: (json['longitude'] ?? 0).toDouble(),
+      telefono: json['telefono']?.toString() ?? '',
       apertura: json['apertura_normal']?.toString(),
       cierre: json['cierre_normal']?.toString(),
     );
@@ -38,6 +41,7 @@ class ModeloFarmacia {
       direccion: json['local_direccion'] ?? 'Sin dirección',
       latitud: double.tryParse(json['local_lat']?.toString() ?? '0') ?? 0.0,
       longitud: double.tryParse(json['local_lng']?.toString() ?? '0') ?? 0.0,
+      telefono: json['local_telefono']?.toString() ?? '',
       apertura: json['funcionamiento_hora_apertura']?.toString(),
       cierre: json['funcionamiento_hora_cierre']?.toString(),
       dia: json['funcionamiento_dia']?.toString(),

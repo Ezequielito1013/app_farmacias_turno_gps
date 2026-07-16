@@ -9,6 +9,7 @@ import '../../farmacias/proveedores/proveedor_farmacias.dart';
 import '../widgets/botones_mapa.dart';
 import '../widgets/marcador_destacado.dart';
 import '../widgets/marcador_usuario.dart';
+import '../widgets/tarjeta_detalles_farmacia.dart';
 import '../../../core/utils/animacion_mapa.dart';
 
 /// Pantalla principal (Dashboard) rediseñada con Stack.
@@ -135,7 +136,12 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
                   width: 30,
                   height: 30,
                   rotate: true, // Sigue la rotación del usuario
-                  child: const Icon(Icons.local_pharmacy, color: Colors.green, size: 24),
+                  child: GestureDetector(
+                    onTap: () {
+                      ref.read(farmaciaSeleccionadaProvider.notifier).seleccionar(farmaciaMinsal);
+                    },
+                    child: const Icon(Icons.local_pharmacy, color: Colors.green, size: 24),
+                  ),
                 ),
               );
             }
@@ -149,7 +155,12 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
                 width: 80, // Tamaño grande para dar espacio a la animación del radar
                 height: 80,
                 rotate: true, // Sigue la rotación del usuario
-                child: const MarcadorDestacado(),
+                child: GestureDetector(
+                  onTap: () {
+                    ref.read(farmaciaSeleccionadaProvider.notifier).seleccionar(farmaciaUtem);
+                  },
+                  child: const MarcadorDestacado(),
+                ),
               ),
             );
           }
@@ -160,10 +171,12 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
               FlutterMap(
                 mapController: _mapController,
                 options: MapOptions(
-                  initialCenter: farmaciaUtem != null 
-                      ? LatLng(farmaciaUtem.latitud, farmaciaUtem.longitud) 
-                      : ubicacionUsuario,
-                  initialZoom: farmaciaUtem != null ? 15.0 : 14.0,
+                  initialCenter: ubicacionUsuario,
+                  initialZoom: 14.0,
+                  // Si el usuario toca el mapa vacío, cerramos la tarjeta
+                  onTap: (_, __) {
+                    ref.read(farmaciaSeleccionadaProvider.notifier).limpiar();
+                  },
                 ),
                 children: [
                   TileLayer(
@@ -186,9 +199,12 @@ class _PantallaDashboardState extends ConsumerState<PantallaDashboard> with Tick
                 ),
               ),
 
-              // 3. Capa Inferior: Botones de Acción (Pieza de la Task 4)
+              // 3. Tarjeta Flotante (Se muestra al seleccionar farmacia)
+              const TarjetaDetallesFarmacia(),
+
+              // 4. Botonera Flotante (Abajo)
               Positioned(
-                bottom: 0,
+                bottom: 24,
                 left: 0,
                 right: 0,
                 child: BotonesMapa(

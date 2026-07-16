@@ -109,3 +109,22 @@ final farmaciaCercanaUtemProvider = FutureProvider<ModeloFarmacia?>((ref) async 
     throw Exception('Error al contactar con la API de UTEM: $e');
   }
 });
+
+/// 4. ESTADO DE FARMACIA SELECCIONADA
+/// Almacena la farmacia que el usuario ha tocado en el mapa para mostrar sus detalles.
+class FarmaciaSeleccionadaNotifier extends Notifier<ModeloFarmacia?> {
+  @override
+  ModeloFarmacia? build() => null;
+
+  void seleccionar(ModeloFarmacia farmacia) {
+    state = farmacia;
+  }
+
+  void limpiar() {
+    state = null;
+  }
+}
+
+final farmaciaSeleccionadaProvider = NotifierProvider<FarmaciaSeleccionadaNotifier, ModeloFarmacia?>(
+  () => FarmaciaSeleccionadaNotifier(),
+);
