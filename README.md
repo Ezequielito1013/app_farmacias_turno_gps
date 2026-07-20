@@ -119,4 +119,8 @@ Debido a las estrictas políticas de seguridad de Google, el inicio de sesión c
 Para facilitar la revisión de este proyecto **sin** necesidad de intercambiar claves SHA-1, se proponen dos opciones:
 
 1. **Recomendado (Vía Rápida):** Instalar directamente el **APK pre-compilado** que se ha dejado disponible en la sección de *Releases* del repositorio. Al estar firmado por el autor original, el Google Sign-In funcionará instantáneamente en el emulador o dispositivo del profesor.
-2. **Compilación desde Código Fuente:** Si como evaluador deseas compilar el código desde cero en tu máquina (`flutter run`), deberás crear temporalmente tu propio proyecto de Firebase, habilitar Google Authentication, registrar la app (`ezekim.farmaciasgps`) y descargar tu propio archivo `google-services.json` para pegarlo dentro de la carpeta `android/app/`. De lo contrario, el SDK de Google arrojará la excepción `PlatformException(sign_in_failed)`.
+2. **Compilación desde Código Fuente:** Si como evaluador deseas compilar el código desde cero en tu máquina (`flutter run`), deberás:
+   - Crear temporalmente tu propio proyecto de Firebase y habilitar Google Authentication.
+   - Descargar tu propio archivo `google-services.json` y pegarlo dentro de la carpeta `android/app/`.
+   - **Copiar el archivo `.env.example` a `.env`** en la raíz del proyecto y pegar ahí tu Web Client ID de Firebase (`WEB_CLIENT_ID=...`), cumpliendo con las buenas prácticas de inyección de credenciales.
+   De lo contrario, el SDK de Google arrojará la excepción `PlatformException(sign_in_failed)` o el token devuelto será nulo.

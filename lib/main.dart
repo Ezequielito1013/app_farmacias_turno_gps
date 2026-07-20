@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'features/auth/pantallas/pantalla_login.dart';
 import 'features/auth/proveedores/proveedor_auth.dart';
@@ -10,6 +11,9 @@ void main() async {
   // Asegura que los bindings de Flutter estén inicializados antes de interactuar con el código nativo (Firebase)
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Cargar variables de entorno
+  await dotenv.load(fileName: ".env");
+
   // Inicializa el motor de Firebase
   await Firebase.initializeApp();
 

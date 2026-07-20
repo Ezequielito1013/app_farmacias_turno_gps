@@ -1,15 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../modelos/usuario_modelo.dart';
 
 /// Servicio encargado de orquestar la comunicación con Firebase y Google (Principio de Responsabilidad Única).
 class ServicioAuth {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  // Añadir explícitamente el Web Client ID (Client Type 3) extraído del google-services.json
-  // Esto obliga a Google a devolver un idToken en Release mode.
+  // Añadir explícitamente el Web Client ID extraído desde el archivo .env (Buenas prácticas / DevOps)
+  // Esto obliga a Google a devolver un idToken en Release mode sin amarrar el código fuente al Firebase personal.
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    serverClientId: '274064298388-46krem66qll12omddqcb9sshlfenusfj.apps.googleusercontent.com',
+    serverClientId: dotenv.env['WEB_CLIENT_ID'],
   );
 
   /// Instancia global de Google SignIn para poder reutilizarla en el Interceptor (evita errores en Release)
